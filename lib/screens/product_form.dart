@@ -23,11 +23,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   final List<String> _categories = [
     'boots',
-    'jersey',
-    'ball',
+    'knee_guards',
+    'footballs',
+    'socks',
+    'shirts',
     'gloves',
-    'shin guards',
-    'accessories',
   ];
 
   @override
@@ -208,35 +208,45 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // Send to Django
-                        final response = await request.postJson(
-                          "https://arya-novalino-footballshop.pbp.cs.ui.ac.id/create-flutter/",
-                          jsonEncode({
-                            "name": _name,
-                            "description": _description,
-                            "price": _price.toString(),
-                            "thumbnail": _thumbnail,
-                            "category": _category,
-                            "is_featured": _isFeatured,
-                          }),
-                        );
-                        if (context.mounted) {
-                          if (response['status'] == 'success') {
+                        try {
+                          // Send to Django
+                          final response = await request.postJson(
+                            "https://arya-novalino-footballshop.pbp.cs.ui.ac.id/create-flutter/",
+                            jsonEncode({
+                              "name": _name,
+                              "description": _description,
+                              "price": _price.toString(),
+                              "thumbnail": _thumbnail,
+                              "category": _category,
+                              "is_featured": _isFeatured,
+                            }),
+                          );
+
+                          if (context.mounted) {
+                            if (response['status'] == 'success') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Product successfully saved!"),
+                                ),
+                              );
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MyHomePage()),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Error: ${response['status']}"),
+                                ),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Product successfully saved!"),
-                              ),
-                            );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyHomePage()),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    "Something went wrong, please try again."),
+                              SnackBar(
+                                content: Text("Error: $e"),
                               ),
                             );
                           }
